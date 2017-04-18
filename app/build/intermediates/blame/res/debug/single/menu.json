@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "C:\\Desktop\\RNDie\\app\\build\\intermediates\\res\\merged\\debug\\menu\\gatt_services.xml",
+        "source": "C:\\Desktop\\RNDie\\app\\src\\main\\res\\menu\\gatt_services.xml"
+    },
+    {
+        "merged": "C:\\Desktop\\RNDie\\app\\build\\intermediates\\res\\merged\\debug\\menu\\scan_start_stop.xml",
+        "source": "C:\\Desktop\\RNDie\\app\\src\\main\\res\\menu\\scan_start_stop.xml"
+    }
+]
