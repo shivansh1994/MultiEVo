@@ -19,6 +19,8 @@ uses-sdk
 ADDED from C:\AndroidStudioProjects\PCS\app\src\main\AndroidManifest.xml:7:5-9:41
 MERGED from [com.android.support:appcompat-v7:23.0.1] C:\AndroidStudioProjects\PCS\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.0.1\AndroidManifest.xml:20:5-43
 MERGED from [com.android.support:support-v4:23.0.1] C:\AndroidStudioProjects\PCS\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.0.1\AndroidManifest.xml:20:5-43
+MERGED from [com.github.lzyzsd:circleprogress:1.2.1] C:\AndroidStudioProjects\PCS\app\build\intermediates\exploded-aar\com.github.lzyzsd\circleprogress\1.2.1\AndroidManifest.xml:8:5-10:41
+MERGED from [com.github.anastr:speedviewlib:1.1.4] C:\AndroidStudioProjects\PCS\app\build\intermediates\exploded-aar\com.github.anastr\speedviewlib\1.1.4\AndroidManifest.xml:7:5-9:41
 	android:targetSdkVersion
 		ADDED from C:\AndroidStudioProjects\PCS\app\src\main\AndroidManifest.xml:9:9-38
 		INJECTED from C:\AndroidStudioProjects\PCS\app\src\main\AndroidManifest.xml
@@ -65,6 +67,7 @@ application
 ADDED from C:\AndroidStudioProjects\PCS\app\src\main\AndroidManifest.xml:22:5-39:19
 MERGED from [com.android.support:appcompat-v7:23.0.1] C:\AndroidStudioProjects\PCS\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.0.1\AndroidManifest.xml:22:5-20
 MERGED from [com.android.support:support-v4:23.0.1] C:\AndroidStudioProjects\PCS\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.0.1\AndroidManifest.xml:22:5-20
+MERGED from [com.github.anastr:speedviewlib:1.1.4] C:\AndroidStudioProjects\PCS\app\build\intermediates\exploded-aar\com.github.anastr\speedviewlib\1.1.4\AndroidManifest.xml:11:5-12:19
 	android:label
 		ADDED from C:\AndroidStudioProjects\PCS\app\src\main\AndroidManifest.xml:25:9-41
 	android:allowBackup

@@ -19,6 +19,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_margin="1dp"
     android:id="@+id/main"
     android:weightSum="1"
@@ -64,54 +65,30 @@
         android:orientation="vertical"
         android:id="@+id/tp"
         android:background="#FFFFFF"
-        android:layout_gravity="center_horizontal"
         android:layout_weight="1">
 
-        <ProgressBar
-            android:id="@+id/circularprogressbar1"
+        <com.github.lzyzsd.circleprogress.ArcProgress
+            android:id="@+id/arc_progress1"
+            android:background="#214193"
+            android:layout_marginLeft="50dp"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:indeterminate="false"
-            android:progress="0"
-            android:max="255"
-            android:secondaryProgress="225"
-            android:progressDrawable="@drawable/circular" />
-        <TextView
-            android:background="#00000000"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Frequency"
-            android:gravity="center_vertical"
-            android:id="@+id/textView2"
-            android:layout_alignBottom="@+id/circularprogressbar1"
+            custom:arc_progress="0"
+            custom:arc_bottom_text="FREQUENCY"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />
+
+        <com.github.lzyzsd.circleprogress.ArcProgress
+            android:id="@+id/arc_progress2"
+            android:background="#214193"
+            android:layout_marginLeft="50dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            custom:arc_progress="0"
+            custom:arc_bottom_text="PRESSURE"
+            android:layout_alignParentTop="true"
             android:layout_alignParentStart="true" />
 
-
-        <ProgressBar
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:indeterminate="false"
-            android:progress="0"
-            android:max="255"
-            android:secondaryProgress="225"
-            android:progressDrawable="@drawable/circular"
-            android:layout_alignBottom="@+id/circularprogressbar1"
-            android:layout_alignParentEnd="true"
-            android:layout_gravity="right"
-            android:id="@+id/circularprogressbar2" />
-        <TextView
-            android:background="#00000000"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pressure"
-            android:gravity="right|center_vertical"
-            android:layout_gravity="center_vertical"
-
-            android:id="@+id/textView4"
-            android:layout_alignBottom="@+id/circularprogressbar2"
-            android:layout_alignStart="@+id/circularprogressbar2" />
         <SeekBar
             android:id="@+id/seekBar1"
             android:layout_width="match_parent"
@@ -119,8 +96,7 @@
             android:max="255"
             android:progress="0"
             android:indeterminate="false"
-            android:layout_centerVertical="true"
-            android:layout_alignEnd="@+id/textView4" />
+            android:layout_centerVertical="true" />
 
         <EditText
             android:layout_width="wrap_content"

@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="speedviewlib-1.1.4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.github.anastr/speedviewlib/1.1.4/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.github.anastr/speedviewlib/1.1.4/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.anastr/speedviewlib/1.1.4/39d1e3d08c043060155bbb0a040b6c05ff116b39/speedviewlib-1.1.4-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

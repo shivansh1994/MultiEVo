@@ -59,6 +59,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.anastr.speedviewlib.SpeedView;
+import com.github.lzyzsd.circleprogress.ArcProgress;
 import com.microchip.pcs.adapter.ReportDatabase;
 
 
@@ -104,16 +106,16 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
     SQLiteDatabase sqldb;
     Cursor c;
     Handler mHandler;
-    ProgressBar progressBar1,progressBar2;
+    ArcProgress arc_progress1,arc_progress2;
     SeekBar seekBar1;
     Switch s;
     TextView tv1;
     byte array1[]=new byte[10];
     byte array2[]=new byte[10];
     List<Byte> byte1=new ArrayList<>();
-    int a[]=new int[50];
-    int i=0x25;
-    int j=i+1;
+    int a[]=new int[9];
+    int i;
+    int j;
 
 
 
@@ -190,8 +192,9 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
         tv1=(TextView)(findViewById(R.id.tv1));
         s=(Switch)(findViewById(R.id.switch1));
         s.setBackgroundColor(Color.CYAN);
-        progressBar1=(ProgressBar) findViewById(R.id.circularprogressbar1);
-        progressBar2=(ProgressBar) findViewById(R.id.circularprogressbar2);
+        arc_progress1=(ArcProgress) findViewById(R.id.arc_progress1);
+        arc_progress2=(ArcProgress) findViewById(R.id.arc_progress2);
+
         button=(Button)(findViewById(R.id.button));
         button.setOnClickListener(this);
         //Create new string to hold incoming message data
@@ -544,7 +547,6 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
                 byte[] data=characteristic.getValue();
 
             }
-
         }
 
         //For information only. This application sends small packets infrequently and does not need to know what the previous write completed
@@ -553,7 +555,6 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
             if (status == BluetoothGatt.GATT_SUCCESS) {                                 //See if the write was successful
                 boolean writeComplete = true;
             }
-
         }
 
         @Override
@@ -564,17 +565,19 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
                 @Override
                 public void run() {
             if(byte1.size()==9){
-                for(int i=0;i<byte1.size();i++){
-                    a[i]=byte1.get(i) & 0xFF;
-                    int j=CRC_check(a,9);
-                    if(j==1)
-                    {
-                    if(a[i]==255){
-                        progressBar2.setProgress(a[i+4]);
-                        progressBar1.setProgress(a[i+5]);
-                    }}
+                for(int i=0;i<(byte1.size()-2);i++){
+                    a[i]=byte1.get(i+2) & 0xFF;
+
                 }
-                byte1.clear();
+                j=CRC_check(a,7);
+                if(j==1){
+                    arc_progress1.setProgress(a[i+3]);
+                    arc_progress2.setProgress(a[i+2]);
+                    byte1.clear();
+            }
+                else {
+                    Toast.makeText(DeviceControlActivity.this,"NOT VALID FRAME",Toast.LENGTH_SHORT).show();
+                }
             }}
             });
         }
@@ -650,7 +653,6 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
     @Override
     public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
         et1.setText(String.valueOf(i));
-
     }
 
     @Override
@@ -665,25 +667,27 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
 
     @Override
     public void onClick(View view) {
-        progressBar2.setProgress(Integer.parseInt(et1.getText().toString()));
+        arc_progress2.setProgress(Integer.parseInt(et1.getText().toString()));
         Toast.makeText(DeviceControlActivity.this,"UPDATED",Toast.LENGTH_SHORT).show();
         tv1.setText(incomingMessage);
     }
 
 
 
-    int CRC16 ( int puchMsg,int usDataLen )
-    {
+    int CRC16( int puchMsg[],int usDataLen )
+    {   int CRC;
         int uchCRCHi = 0xFF ; /* high byte of CRC initialized */
         int uchCRCLo = 0xFF ; /* low byte of CRC initialized */
         int uIndex ; /* will index into CRC lookup table */
+        int index = 0;
         while(usDataLen!=0){ /* pass through message buffer */
             usDataLen--;
-            uIndex = uchCRCLo ^ puchMsg++ ; /* calculate the CRC */
+            uIndex = uchCRCLo ^ puchMsg[index++] ; /* calculate the CRC */
             uchCRCLo = uchCRCHi ^ auchCRCHi[uIndex] ;
             uchCRCHi = auchCRCLo[uIndex] ;
         }
-        return (uchCRCHi << 8 | uchCRCLo) ;//(highbyte | lowbyte)
+        CRC=(uchCRCHi )| uchCRCLo << 8;
+        return (CRC) ;//(highbyte | lowbyte)
     }
 
 
@@ -706,10 +710,11 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
 
      int get_frame_CRC(int RX_BUFFER[],int buf_len)
     {
-         int HighByte,LowByte ;
+         int HighByte,LowByte , CRC1;
         HighByte = RX_BUFFER[buf_len-1];//high byte
         LowByte = RX_BUFFER[buf_len-2];//low byte
-        return (HighByte << 8 | LowByte);//(highbyte | lowbyte)
+        CRC1=(HighByte << 8) | LowByte;
+        return (CRC1);//(highbyte | lowbyte)
     }
 
 //********************************************************************
@@ -732,7 +737,7 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
      int CRC_check(int  RX_BUFFER[],int buf_len)
     {
         int flag_crc_match;
-        if( get_frame_CRC(RX_BUFFER,buf_len)== CRC16 ( RX_BUFFER[buf_len],(buf_len-2) ) ){
+        if( get_frame_CRC(RX_BUFFER,buf_len)== CRC16( RX_BUFFER,(buf_len-2) ) ){
             flag_crc_match = 1;
         }
         else{
@@ -740,10 +745,5 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
         }
         return flag_crc_match;
     }
-
-
-
-
-
 
 }
