@@ -20,10 +20,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/tools"
     android:layout_margin="1dp"
     android:id="@+id/main"
     android:weightSum="1"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/background"
+
+    >
 
     <!-- Address: xx:xx:xx:xx:xx:xx -->
 
@@ -63,94 +67,79 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:id="@+id/tp"
-        android:background="#FFFFFF"
-        android:layout_weight="1">
+        android:id="@+id/tp">
 
-        <com.github.lzyzsd.circleprogress.ArcProgress
-            android:id="@+id/arc_progress1"
-            android:background="#214193"
-            android:layout_marginLeft="50dp"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            custom:arc_progress="0"
-            custom:arc_bottom_text="FREQUENCY"
+
+        <com.github.anastr.speedviewlib.SpeedView
+            android:id="@+id/speedView1"
+            android:layout_width="165dp"
+            android:layout_height="wrap_content"
+            app:unit="atm"
+            android:padding="10dp"
+
+            />
+
+        <com.github.anastr.speedviewlib.SpeedView
+            android:id="@+id/speedView2"
+            android:layout_width="165dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            app:unit="Hz"
+            android:padding="10dp"
 
-        <com.github.lzyzsd.circleprogress.ArcProgress
-            android:id="@+id/arc_progress2"
-            android:background="#214193"
-            android:layout_marginLeft="50dp"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            custom:arc_progress="0"
-            custom:arc_bottom_text="PRESSURE"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true" />
+            />
 
-        <SeekBar
-            android:id="@+id/seekBar1"
+
+        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="255"
-            android:progress="0"
-            android:indeterminate="false"
-            android:layout_centerVertical="true" />
+            app:dsb_min="2"
+            app:dsb_max="15"
+            android:id="@+id/dsb"
+            android:padding="10dp"
+            android:layout_alignEnd="@+id/speedView2"
+            android:layout_below="@+id/speedView2" />
 
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/et1"
-            android:layout_below="@+id/seekBar1"
-            android:layout_alignParentStart="true"
-            android:layout_alignEnd="@+id/textView2"
-            android:text="0" />
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="UPDATE"
+            android:background="@drawable/button"
             android:id="@+id/button"
-            android:layout_alignBottom="@+id/et1"
-            android:layout_alignParentEnd="true" />
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:padding="1dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
 
-        <Switch
-            android:id="@+id/switch1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="69dp"
-            android:checked="false"
-            android:text="STATUS"
-            android:textOff="OFF"
-            android:textOn="ON"
-            android:layout_below="@+id/button"
-            android:layout_alignParentEnd="true" />
+
+
+
+
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:id="@+id/tv1"
-            android:hint="incoming message"
-            android:layout_below="@+id/switch1"
-            android:layout_alignParentStart="true" />
+            android:text="PRESSURE SETPOINT"
+            android:id="@+id/textView2"
+            android:padding="10dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:background="@drawable/submit"
+            android:layout_width="75dp"
+            android:layout_height="50dp"
+            android:id="@+id/button1"
+            android:layout_below="@+id/textView2"
+            android:layout_alignEnd="@+id/button"
+            android:layout_alignStart="@+id/button" />
+
 
     </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="horizontal">
 
-
-        <Space
-            android:layout_width="5dp"
-            android:layout_height="wrap_content" />
-
-
-    </LinearLayout>
 
     <!-- Separator line -->
 

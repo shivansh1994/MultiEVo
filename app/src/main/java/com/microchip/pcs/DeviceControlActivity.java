@@ -5,6 +5,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,11 +33,13 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -52,17 +56,23 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dd.processbutton.iml.ActionProcessButton;
 import com.github.anastr.speedviewlib.SpeedView;
+import com.github.anastr.speedviewlib.components.note.TextNote;
 import com.github.lzyzsd.circleprogress.ArcProgress;
 import com.microchip.pcs.adapter.ReportDatabase;
 
+
+import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
 import java.util.UUID;
 
@@ -73,7 +83,7 @@ import java.util.UUID;
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 @SuppressWarnings("deprecation")
-public class DeviceControlActivity extends FragmentActivity implements ActionBar.TabListener,SeekBar.OnSeekBarChangeListener,View.OnClickListener{
+public class DeviceControlActivity extends FragmentActivity implements ActionBar.TabListener,View.OnClickListener, DiscreteSeekBar.OnProgressChangeListener {
 
     private ActionBar actionBar;
     public static String spmin,spmax,cp,sw,sen,p1r,p2r,csa,str;
@@ -97,12 +107,15 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
     private BluetoothGatt mGatt;                                           //Handler used to send die roll after a time delay
     private EditText message;
     private TextView et1;                                      //TextViews to show connection state and die roll number on the display
-    private Button button;
     private String mDeviceAddress;//Strings for the Bluetooth device name and MAC address
     private String incomingMessage;//String to hold the incoming message from the MLDP characteristic
     private boolean mConnected = false;
     private String path=Environment.getExternalStorageDirectory().getAbsolutePath() + "/ITester/";
     private String connection;
+    private SpeedView speedView1,speedView2;
+    private Button button,button1;
+    DiscreteSeekBar dsb;
+    Vibrator vibe;
     SQLiteDatabase sqldb;
     Cursor c;
     Handler mHandler;
@@ -110,12 +123,15 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
     SeekBar seekBar1;
     Switch s;
     TextView tv1;
-    byte array1[]=new byte[10];
-    byte array2[]=new byte[10];
     List<Byte> byte1=new ArrayList<>();
+    boolean isPressed = false;
+    private MediaPlayer mp;
     int a[]=new int[9];
+    int b[]=new int[9];
     int i;
     int j;
+    int progress;
+    RadioButton rb;
 
 
 
@@ -165,10 +181,6 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
     };
 
 
-
-
-
-
     // ----------------------------------------------------------------------------------------------------------------
     // Activity launched
     // Invoked by Intent in onListItemClick method in DeviceScanActivity
@@ -180,23 +192,59 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         actionBar = getActionBar();
         actionBar.setHomeButtonEnabled(false);
-        this.getActionBar().setTitle("CPS");                           //Display "BLE Device Scan" on the action bar
+        this.getActionBar().setTitle("MultiEVo");                           //Display "BLE Device Scan" on the action bar
+        mp = MediaPlayer.create(this, R.raw.click);
 
-      //  actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        //  actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         final Intent intent = getIntent();                                              //Get the Intent that launched this activity
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);                  //Get the BLE device address from the Intent
         mHandler = new Handler();                                                       //Create Handler to delay sending first roll after new connection
-        seekBar1=(SeekBar)findViewById(R.id.seekBar1);
-        seekBar1.setOnSeekBarChangeListener((SeekBar.OnSeekBarChangeListener) this);
-        et1=(TextView)(findViewById(R.id.et1));
-        tv1=(TextView)(findViewById(R.id.tv1));
-        s=(Switch)(findViewById(R.id.switch1));
-        s.setBackgroundColor(Color.CYAN);
-        arc_progress1=(ArcProgress) findViewById(R.id.arc_progress1);
-        arc_progress2=(ArcProgress) findViewById(R.id.arc_progress2);
+      //  seekBar1=(SeekBar)findViewById(R.id.seekBar1);
+     //   seekBar1.setOnSeekBarChangeListener((SeekBar.OnSeekBarChangeListener) this);
+        dsb=(DiscreteSeekBar)findViewById(R.id.dsb);
+      //  et1=(TextView)(findViewById(R.id.et1));
+        vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        dsb.setMax(255);
+        dsb.setOnProgressChangeListener(this);
+        rb=(RadioButton)(findViewById(R.id.radioButton));
+        rb.setChecked(false);
+//        s.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView,
+//                                         boolean isChecked) {
+//
+//                if(isChecked){
+//                    b[3]=1;
+//                }else{
+//                    b[3]=0;
+//                }
+//            }
+//        });
+
+//        arc_progress1=(ArcProgress) findViewById(R.id.arc_progress1);
+//        arc_progress2=(ArcProgress) findViewById(R.id.arc_progress2);
+        speedView1 = (SpeedView) findViewById(R.id.speedView1);
+        speedView2 = (SpeedView) findViewById(R.id.speedView2);
+        speedView1.setMaxSpeed(255);
+        speedView2.setMaxSpeed(255);
+        speedView1.setMinSpeed(0);
+        speedView2.setMinSpeed(0);
+        speedView1.setWithTremble(false);
+        speedView1.setTextSize(1);
+        speedView2.setTextSize(1);
+        speedView1.setUnit("PSI");
+        speedView2.setUnit("Hz");
+        speedView1.setSpeedTextColor(R.color.GreenYellow);
+        speedView2.setSpeedTextColor(R.color.Red);
 
         button=(Button)(findViewById(R.id.button));
+        button1=(Button)(findViewById(R.id.button1));
+
+
         button.setOnClickListener(this);
+        button1.setOnClickListener(this);
+        //  button.setVisibility(View.GONE);
         //Create new string to hold incoming message data
         //Set the title of the ActionBar to the name of the BLE device
         this.getActionBar().setDisplayHomeAsUpEnabled(true);                            //Make home icon clickable with < symbol on the left
@@ -206,7 +254,6 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
             Toast.makeText(this, R.string.bluetooth_not_supported, Toast.LENGTH_SHORT).show(); //Message that Bluetooth is not supported
             finish();                                                                   //End the activity
         }
-
     }
 
 
@@ -555,7 +602,20 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
             if (status == BluetoothGatt.GATT_SUCCESS) {                                 //See if the write was successful
                 boolean writeComplete = true;
             }
+
+            ByteBuffer byteBuffer = ByteBuffer.allocate(b.length * 4);
+            IntBuffer intBuffer = byteBuffer.asIntBuffer();
+            intBuffer.put(b);
+
+            byte[] array = byteBuffer.array();
+
+            characteristic.setValue(array);
         }
+
+
+
+
+
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) { //Indication or notification was received
@@ -564,21 +624,49 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
             act1.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-            if(byte1.size()==9){
-                for(int i=0;i<(byte1.size()-2);i++){
-                    a[i]=byte1.get(i+2) & 0xFF;
+                    try {
+                        rb.setChecked(true);
+                        for (int i = 0; i < (byte1.size()); i++) {
+                            b[i] = byte1.get(i) & 0xFF;
+                            if (i == 3) {
+                                if (b[3] == 0) {
+                                    button.setBackgroundResource(R.drawable.off);
+                                } else {
+                                    button.setBackgroundResource(R.drawable.on);
+                                }
+                            }
+
+                        }
+
+                        if (byte1.size() == 9) {
+                            for (int i = 0; i < (byte1.size() - 2); i++) {
+                                a[i] = byte1.get(i + 2) & 0xFF;
+                            }
+                            byte1.clear();
+                            j = CRC_check(a, 7);
+                            if (j == 1) {
+//                    arc_progress1.setProgress(a[i+3]);
+//                    arc_progress2.setProgress(a[i+2]);
+                                // vibe.vibrate(200);
+                                speedView1.speedTo(a[i + 2]);
+                                speedView1.addNote(new TextNote(DeviceControlActivity.this,"Pressure "+a[i+2]));
+                                speedView2.speedTo(a[i + 3]);
+                                speedView2.addNote(new TextNote(DeviceControlActivity.this,"Frequency "+a[i+3]));
+                                speedView1.setWithTremble(false);
+                                speedView2.setWithTremble(false);
+                                byte1.clear();
+                            } else {
+                                rb.setChecked(false);
+                                Toast.makeText(DeviceControlActivity.this, "NOT VALID FRAME", Toast.LENGTH_SHORT).show();
+                                byte1.clear();
+
+                            }
+                        }
+                    } catch (ArrayIndexOutOfBoundsException exception) {
+                    }
 
                 }
-                j=CRC_check(a,7);
-                if(j==1){
-                    arc_progress1.setProgress(a[i+3]);
-                    arc_progress2.setProgress(a[i+2]);
-                    byte1.clear();
-            }
-                else {
-                    Toast.makeText(DeviceControlActivity.this,"NOT VALID FRAME",Toast.LENGTH_SHORT).show();
-                }
-            }}
+
             });
         }
     };
@@ -613,10 +701,14 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
         if (mBluetoothGatt.writeCharacteristic(characteristic)) {                       //Request the BluetoothGatt to do the Write
             Log.d(TAG, "writeCharacteristic successful");                               //The request was accepted, this does not mean the write completed
             Log.d("Writing :",characteristic.toString());
+
+
         }
         else {
-            Log.d(TAG, "writeCharacteristic failed");                                   //Write request was not accepted by the BluetoothGatt
+            Log.d(TAG, "writeCharacteristic failed");
+
         }
+
     }
 
     @Override
@@ -650,27 +742,75 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
         this.finish();
     }
 
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-        et1.setText(String.valueOf(i));
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-
-    }
 
     @Override
     public void onClick(View view) {
-        arc_progress2.setProgress(Integer.parseInt(et1.getText().toString()));
-        Toast.makeText(DeviceControlActivity.this,"UPDATED",Toast.LENGTH_SHORT).show();
-        tv1.setText(incomingMessage);
+        switch (view.getId()) {
+            case R.id.button1: {
+
+                if (progress != 0) {
+                    if (b[3] == 0) {
+                        button.setBackgroundResource(R.drawable.off);
+                        rb.setChecked(false);
+                    } else {
+                        button.setBackgroundResource(R.drawable.on);
+                        rb.setChecked(true);
+                    }
+                    int[] tempwritevalues = new int[7];
+                    int tempCRC;
+                    byte writeindex = 0;
+                    tempwritevalues[writeindex++] = 1;//to write this byte should be 0x01;
+                    tempwritevalues[writeindex++] = b[3];//pump status -> read only
+                    tempwritevalues[writeindex++] = b[4];//pressure -> read only
+                    tempwritevalues[writeindex++] = b[5];//frequency -> read only
+                    tempwritevalues[writeindex++] = progress;  //pressure set point
+
+                    tempCRC = (CRC16(tempwritevalues, writeindex)) & 0xFFFF;
+                    tempwritevalues[writeindex++] = tempCRC & 0xFF;
+                    tempwritevalues[writeindex++] = (tempCRC >> 8) & 0xFF;
+                    byte[] array = new byte[10];
+                    array[0] = -1;// sync byte 0xFF or -1 or 255
+                    array[1] = writeindex;
+                    for (int i = 0; i < writeindex; i++) {
+                        array[i + 2] = (byte) (tempwritevalues[i] & 0xFF);
+                    }
+                    if(array!=null)
+                    {
+                        mDataMDLP.setValue(array);
+                        writeCharacteristic(mDataMDLP);
+
+
+
+                        Toast.makeText(DeviceControlActivity.this, "UPDATED", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                        Toast.makeText(DeviceControlActivity.this,"Receive DATA first",Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    rb.setChecked(false);
+                    Toast.makeText(DeviceControlActivity.this, "UPDATE VALUE FIRST", Toast.LENGTH_LONG).show();
+                }
+
+            break;
+        }
+        case R.id.button: {
+            mp.start();
+            if(isPressed) {
+                button.setBackgroundResource(R.drawable.on);
+                b[3]=1;
+            }
+            else {
+                button.setBackgroundResource(R.drawable.off);
+                b[3]=0;
+            }
+            isPressed = !isPressed;
+        }
+            break;
+        }
     }
+
+
 
 
 
@@ -686,7 +826,7 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
             uchCRCLo = uchCRCHi ^ auchCRCHi[uIndex] ;
             uchCRCHi = auchCRCLo[uIndex] ;
         }
-        CRC=(uchCRCHi )| uchCRCLo << 8;
+        CRC=(uchCRCHi << 8 )| uchCRCLo;
         return (CRC) ;//(highbyte | lowbyte)
     }
 
@@ -746,4 +886,18 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
         return flag_crc_match;
     }
 
+    @Override
+    public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
+        progress=value;
+    }
+
+    @Override
+    public void onStartTrackingTouch(DiscreteSeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(DiscreteSeekBar seekBar) {
+
+    }
 }

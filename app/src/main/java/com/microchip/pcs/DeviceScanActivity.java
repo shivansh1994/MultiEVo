@@ -74,7 +74,7 @@ public class DeviceScanActivity extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.getActionBar().setTitle("CPS");                           //Display "BLE Device Scan" on the action bar
+        this.getActionBar().setTitle("MultiEVo");                           //Display "BLE Device Scan" on the action bar
         mHandler = new Handler();                                                       //Create Handler to stop scanning
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) { //Check if BLE is supported
