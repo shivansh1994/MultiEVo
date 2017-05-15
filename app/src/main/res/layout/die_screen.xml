@@ -1,60 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Copyright (C) 2014 Microchip Technology Inc. and its subsidiaries.  You may use this software and any derivatives
-    exclusively with Microchip products.
- 
-    THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO
-    THIS SOFTWARE, INCLUDING ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A PARTICULAR
-    PURPOSE, OR ITS INTERACTION WITH MICROCHIP PRODUCTS, COMBINATION WITH ANY OTHER PRODUCTS, OR USE IN ANY APPLICATION. 
- 
-    IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE,
-    COST OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS BEEN ADVISED
-    OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL
-    LIABILITY ON ALL CLAIMS IN ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY, THAT YOU
-    HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
- 
-    MICROCHIP PROVIDES THIS SOFTWARE CONDITIONALLY UPON YOUR ACCEPTANCE OF THESE TERMS.
--->
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/tools"
-    android:layout_margin="1dp"
     android:id="@+id/main"
     android:weightSum="1"
     android:orientation="vertical"
     android:background="@drawable/background"
-
     >
-
-    <!-- Address: xx:xx:xx:xx:xx:xx -->
-
-    <!--<LinearLayout-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_margin="10dp"-->
-    <!--android:orientation="horizontal" >-->
-
-    <!--<TextView-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:text="@string/label_address"-->
-    <!--android:textSize="18sp" />-->
-
-    <!--<Space-->
-    <!--android:layout_width="5dp"-->
-    <!--android:layout_height="wrap_content" />-->
-
-    <!--<TextView-->
-    <!--android:id="@+id/deviceAddress"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:textSize="18sp" />-->
-    <!--</LinearLayout>-->
-
-    <!-- State: Connected/Disconnected -->
 
     <RadioButton
         android:layout_width="wrap_content"
@@ -64,24 +18,24 @@
         android:checked="true" />
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+
         android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:id="@+id/tp">
 
 
         <com.github.anastr.speedviewlib.SpeedView
             android:id="@+id/speedView1"
-            android:layout_width="165dp"
+            android:layout_width="185dp"
             android:layout_height="wrap_content"
             app:unit="atm"
             android:padding="10dp"
-
             />
 
         <com.github.anastr.speedviewlib.SpeedView
             android:id="@+id/speedView2"
-            android:layout_width="165dp"
+            android:layout_width="185dp"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
@@ -89,7 +43,6 @@
             android:padding="10dp"
 
             />
-
 
         <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
             android:layout_width="match_parent"
@@ -103,18 +56,14 @@
 
 
         <Button
-            android:background="@drawable/button"
+            android:background="@drawable/on"
             android:id="@+id/button"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:padding="1dp"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
-
-
-
-
-
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="32dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -128,7 +77,7 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:background="@drawable/submit"
+            android:background="@drawable/button"
             android:layout_width="75dp"
             android:layout_height="50dp"
             android:id="@+id/button1"
@@ -136,11 +85,6 @@
             android:layout_alignEnd="@+id/button"
             android:layout_alignStart="@+id/button" />
 
-
     </RelativeLayout>
-
-
-
-    <!-- Separator line -->
 
 </LinearLayout>
