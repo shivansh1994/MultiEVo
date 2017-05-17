@@ -84,6 +84,12 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
     private int progress;
     private RadioButton rb;
     private int flag=0;
+    int Pressure;
+    int Frequency;
+    int Pressure_setpointRD;
+    int Pressure_setpointWR;
+    int Pump_status;
+    int Pump_OnOff;
 
     //High-Order Byte Table
 /* Table of CRC values for high–order byte */
@@ -544,13 +550,6 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
                         for (counter = 0; counter < (Received_bytes.size()); counter++)
                         {
                             Received_array[counter] = Received_bytes.get(counter) & 0xFF;
-                            if (counter == 3) {
-                                if (Received_array[3] == 0) {
-                                    rb.setChecked(false);
-                                } else {
-                                    rb.setChecked(true);
-                                }
-                            }
                         }
                         if (Received_bytes.size() == 9)
                         {
@@ -563,12 +562,33 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
                             CRC_Return = CRC_check(CRC_checkArray, 7);
                             if (CRC_Return == 1)
                             {
+                               // Pressure=CRC_checkArray[counter+0];
+                                Pump_status=CRC_checkArray[counter+1];
+                                Pressure=CRC_checkArray[counter+2];
+                                Frequency=CRC_checkArray[counter+3];
+                                Pressure_setpointRD=CRC_checkArray[counter+4];
                                 speedView1.speedTo(CRC_checkArray[counter + 2]);
                                 speedView1.addNote(new TextNote(DeviceControlActivity.this,"Pressure "+ CRC_checkArray[counter+2]));
                                 speedView2.speedTo(CRC_checkArray[counter + 3]);
                                 speedView2.addNote(new TextNote(DeviceControlActivity.this,"Frequency "+ CRC_checkArray[counter+3]));
                                 speedView1.setWithTremble(false);
                                 speedView2.setWithTremble(false);
+                                if (Pump_status == 0) {
+                                    rb.setChecked(false);
+                                } else {
+                                    rb.setChecked(true);
+                                }
+                                if(flag==0){
+                                    Pump_OnOff = Pump_status;
+                                    Pressure_setpointWR = Pressure_setpointRD;
+                                }
+                                if(Pump_OnOff == 0) {
+                                    button.setBackgroundResource(R.drawable.off);
+                                }
+                                else{
+                                    button.setBackgroundResource(R.drawable.on);
+                                }
+
                                 Received_bytes.clear();
                             }
                             else
@@ -671,22 +691,14 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
         {
             case R.id.button1:
             {
-                 if (Received_array !=null) {
-                    if (Received_array[3] == 0) {
-
-                        rb.setChecked(false);
-                    } else {
-
-                        rb.setChecked(true);
-                    }
                     int[] tempwritevalues = new int[7];
                     int tempCRC;
                     byte writeindex = 0;
                     tempwritevalues[writeindex++] = 1;//to write this byte should be 0x01;
-                    tempwritevalues[writeindex++] = Received_array[3];//pump status -> read only
-                    tempwritevalues[writeindex++] = Received_array[4];//pressure -> read only
-                    tempwritevalues[writeindex++] = Received_array[5];//frequency -> read only
-                    tempwritevalues[writeindex++] = progress;  //pressure set point
+                    tempwritevalues[writeindex++] = Pump_OnOff;//pump status -> read only
+                    tempwritevalues[writeindex++] = Pressure;//pressure -> read only
+                    tempwritevalues[writeindex++] = Frequency;//frequency -> read only
+                    tempwritevalues[writeindex++] = Pressure_setpointWR;  //pressure set point
                     tempCRC = (CRC16(tempwritevalues, writeindex)) & 0xFFFF;
                     tempwritevalues[writeindex++] = tempCRC & 0xFF;
                     tempwritevalues[writeindex++] = (tempCRC >> 8) & 0xFF;
@@ -699,12 +711,7 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
                         mDataMDLP.setValue(array);
                         writeCharacteristic(mDataMDLP);
                         Toast.makeText(DeviceControlActivity.this, "UPDATED", Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
-                    rb.setChecked(false);
-                    Toast.makeText(DeviceControlActivity.this, "RECEIVE DATA FIRST", Toast.LENGTH_LONG).show();
-                }
+                    flag=0;
                     break;
              }
             case R.id.button2:
@@ -712,13 +719,13 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
                     if(isPressed)
                     {
                         button.setBackgroundResource(R.drawable.on);
-                        Received_array[3]=1;
+                        Pump_OnOff=1;
                         flag=1;
                     }
                     else
                     {
                         button.setBackgroundResource(R.drawable.off);
-                        Received_array[3]=0;
+                        Pump_OnOff=0;
                         flag=1;
                     }
                    isPressed = !isPressed;
@@ -810,7 +817,8 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
 
     @Override
     public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
-        progress=value;
+        Pressure_setpointWR=value;
+        flag=1;
     }
 
     @Override
