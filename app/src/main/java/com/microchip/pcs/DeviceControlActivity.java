@@ -22,7 +22,6 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
@@ -43,7 +42,7 @@ import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import java.util.UUID;
 
 /**
- * This Activity receives a Bluetooth device address provides the user interface to connect, display data, and display GATT services
+ * This Activity receives CRC_checkArray Bluetooth device address provides the user interface to connect, display data, and display GATT services
  * and characteristics supported by the device. The Activity communicates with {@code BluetoothLeService}, which in turn
  * interacts with the Bluetooth LE API.
  */
@@ -68,7 +67,7 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
     private BluetoothLeScanner mLEScanner;
     private ScanSettings settings;
     private List<ScanFilter> filters;
-    private BluetoothGatt mGatt;                                           //Handler used to send die roll after a time delay
+    private BluetoothGatt mGatt;                                           //Handler used to send die roll after CRC_checkArray time delay
     private String mDeviceAddress;                                         //Strings for the Bluetooth device name and MAC address
     private boolean mConnected = false;
     private SpeedView speedView1,speedView2;
@@ -76,14 +75,15 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
     private DiscreteSeekBar dsb;
     private Vibrator vibe;
     private Handler mHandler;
-    private  List<Byte> byte1=new ArrayList<>();
+    private  List<Byte> Received_bytes=new ArrayList<>();
     private boolean isPressed = false;
     private MediaPlayer mp;
-    private int a[]=new int[9];
-    private int b[]=new int[9];
-    private int j,i;
+    private int CRC_checkArray[]=new int[9];
+    private int Received_array[]=new int[9];
+    private int CRC_Return,counter;
     private int progress;
     private RadioButton rb;
+    private int flag=0;
 
     //High-Order Byte Table
 /* Table of CRC values for high–order byte */
@@ -166,13 +166,15 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
         speedView2.setUnit("Hz");
         speedView1.setSpeedTextColor(R.color.GreenYellow);
         speedView2.setSpeedTextColor(R.color.Red);
-        button=(Button)(findViewById(R.id.button));
+        button=(Button)(findViewById(R.id.button2));
         button1=(Button)(findViewById(R.id.button1));
         button.setOnClickListener(this);
         button1.setOnClickListener(this);
+        rb.setChecked(false);
+        button.setBackgroundResource(R.drawable.off);
         this.getActionBar().setDisplayHomeAsUpEnabled(true);                            //Make home icon clickable with < symbol on the left
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE); //Get the BluetoothManager
-        mBluetoothAdapter = bluetoothManager.getAdapter();                              //Get a reference to the BluetoothAdapter (radio)
+        mBluetoothAdapter = bluetoothManager.getAdapter();                              //Get CRC_checkArray reference to the BluetoothAdapter (radio)
         if (mBluetoothAdapter == null) {                                                //Check if we got the BluetoothAdapter
             Toast.makeText(this, R.string.bluetooth_not_supported, Toast.LENGTH_SHORT).show(); //Message that Bluetooth is not supported
             finish();                                                                   //End the activity
@@ -200,18 +202,18 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
         }
 
 
-        if (mBluetoothAdapter == null || mDeviceAddress == null) {                      //Check that we still have a Bluetooth adappter and device address
+        if (mBluetoothAdapter == null || mDeviceAddress == null) {                      //Check that we still have CRC_checkArray Bluetooth adappter and device address
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");     //Warn that something went wrong
             finish();                                                                   //End the Activity
         }
 
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mDeviceAddress); //Get the Bluetooth device by referencing its address
-        if (device == null) {                                                           //Check whether a device was returned
+        if (device == null) {                                                           //Check whether CRC_checkArray device was returned
             Log.w(TAG, "Device not found.  Unable to connect.");                        //Warn that something went wrong
             finish();                                                                   //End the Activity
         }
         mBluetoothGatt = device.connectGatt(this, false, mGattCallback);                //Directly connect to the device so autoConnect is false
-        Log.d(TAG, "Trying to create a new connection.");
+        Log.d(TAG, "Trying to create CRC_checkArray new connection.");
 
     }
     private void scanLeDevice(final boolean enable) {
@@ -335,7 +337,7 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mBluetoothGatt != null) {                                            //If there is a valid GATT connection
+        if(mBluetoothGatt != null) {                                            //If there is CRC_checkArray valid GATT connection
             mBluetoothGatt.disconnect();                                        // then disconnect
         }
         mBluetoothGatt.close();                                                         //Close the connection
@@ -365,14 +367,14 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {                                                     //Get which menu item was selected
             case R.id.menu_connect:                                                     //Option to Connect chosen
-                if(mBluetoothGatt != null) {                                            //If there is a valid GATT connection
+                if(mBluetoothGatt != null) {                                            //If there is CRC_checkArray valid GATT connection
                     mBluetoothGatt.connect();                                           // then connect
 
                     updateDieState();
                 }
                 return true;
             case R.id.menu_disconnect:                                                  //Option to Disconnect chosen
-                if(mBluetoothGatt != null) {                                            //If there is a valid GATT connection
+                if(mBluetoothGatt != null) {                                            //If there is CRC_checkArray valid GATT connection
                     mBluetoothGatt.disconnect();                                        // then disconnect
 
                 }
@@ -418,7 +420,7 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
             return;
         }
         String uuid;                                                                    //String to compare received UUID with desired known UUIDs
-        mDataMDLP = null;                                                               //Searching for a characteristic, start with null value
+        mDataMDLP = null;                                                               //Searching for CRC_checkArray characteristic, start with null value
 
         for (BluetoothGattService gattService : gattServices) {                         //Test each service in the list of services
             uuid = gattService.getUuid().toString();                                    //Get the string version of the service's UUID
@@ -462,10 +464,10 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
             Log.d(TAG, "findMldpGattService found no MLDP service");
             finish();                                                                   //and end the activity
         }
-        mHandler.postDelayed(new Runnable() {                                           //Create delayed runnable that will send a roll of the die after a delay
+        mHandler.postDelayed(new Runnable() {                                           //Create delayed runnable that will send CRC_checkArray roll of the die after CRC_checkArray delay
             @Override
             public void run() {
-                updateDieState();                                                       //Update the state of the die with a new roll and send over BLE
+                updateDieState();                                                       //Update the state of the die with CRC_checkArray new roll and send over BLE
             }
         }, 500);                                                                        //Do it after 200ms delay to give the RN4020 time to configure the characteristic
 
@@ -483,13 +485,15 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
                 mConnected = true;                                                      //Record the new connection state
                 updateConnectionState(R.string.connected);                              //Update the display to say "Connected"
                 invalidateOptionsMenu();                                                //Force the Options menu to be regenerated to show the disconnect option
-                mBluetoothGatt.discoverServices();                                      // Attempt to discover services after successful connection.
+                mBluetoothGatt.discoverServices();
+                vibe.vibrate(100);   // Attempt to discover services after successful connection.
             }
             else if (newState == BluetoothProfile.STATE_DISCONNECTED) {                 //See if we are not connected
                 Log.i(TAG, "Disconnected from GATT server.");
                 mConnected = false;                                                     //Record the new connection state
                 updateConnectionState(R.string.disconnected);                           //Update the display to say "Disconnected"
-                invalidateOptionsMenu();                                                //Force the Options menu to be regenerated to show the connect option
+                invalidateOptionsMenu();
+                vibe.vibrate(100); //Force the Options menu to be regenerated to show the connect option
             }
         }
 
@@ -528,47 +532,60 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
 
 
         @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) { //Indication or notification was received
-          byte1.add(characteristic.getValue()[0]);                   //Receiving Values From BLE Device
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
+        { //Indication or notification was received
+            Received_bytes.add(characteristic.getValue()[0]);                   //Receiving Values From BLE Device
             Activity act1 = DeviceControlActivity.this;              //ASYNC Task Thread Creation
-            act1.runOnUiThread(new Runnable() {
+            act1.runOnUiThread(new Runnable()
+            {
                 @Override
-                public void run() {
-                    try {
-                        rb.setChecked(true);
-                        for (i = 0; i < (byte1.size()); i++) {
-                            b[i] = byte1.get(i) & 0xFF;
-                            if (i == 3) {
-                                if (b[3] == 0) {
-                                    button.setBackgroundResource(R.drawable.off);
+                public void run()
+                {
+                        for (counter = 0; counter < (Received_bytes.size()); counter++)
+                        {
+                            Received_array[counter] = Received_bytes.get(counter) & 0xFF;
+                            if (counter == 3) {
+                                if (Received_array[3] == 0) {
+                                    rb.setChecked(false);
                                 } else {
-                                    button.setBackgroundResource(R.drawable.on);
+                                    rb.setChecked(true);
                                 }
                             }
                         }
-                        if (byte1.size() == 9) {
-                            for (i = 0; i < (byte1.size() - 2); i++) {
-                                a[i] = byte1.get(i + 2) & 0xFF;
+                        if (Received_bytes.size() == 9)
+                        {
+                            for (counter = 0; counter < (Received_bytes.size() - 2); counter++)
+                            {
+                                CRC_checkArray[counter] = Received_bytes.get(counter + 2) & 0xFF;
                             }
-                            byte1.clear();
-                            j = CRC_check(a, 7);
-                            if (j == 1) {
-                                speedView1.speedTo(a[i + 2]);
-                                speedView1.addNote(new TextNote(DeviceControlActivity.this,"Pressure "+a[i+2]));
-                                speedView2.speedTo(a[i + 3]);
-                                speedView2.addNote(new TextNote(DeviceControlActivity.this,"Frequency "+a[i+3]));
+                            Received_bytes.clear();
+                            counter=0;
+                            CRC_Return = CRC_check(CRC_checkArray, 7);
+                            if (CRC_Return == 1)
+                            {
+                                speedView1.speedTo(CRC_checkArray[counter + 2]);
+                                speedView1.addNote(new TextNote(DeviceControlActivity.this,"Pressure "+ CRC_checkArray[counter+2]));
+                                speedView2.speedTo(CRC_checkArray[counter + 3]);
+                                speedView2.addNote(new TextNote(DeviceControlActivity.this,"Frequency "+ CRC_checkArray[counter+3]));
                                 speedView1.setWithTremble(false);
                                 speedView2.setWithTremble(false);
-                                byte1.clear();
-                            } else {
+                                Received_bytes.clear();
+                            }
+                            else
+                            {
                                 rb.setChecked(false);
                                 Toast.makeText(DeviceControlActivity.this, "NOT VALID FRAME", Toast.LENGTH_SHORT).show();
-                                byte1.clear();
+                                Received_bytes.clear();
+                            }
+                            if(Received_array[3]==0 && flag==0)
+                            {
+                                button.setBackgroundResource(R.drawable.off);
+                            }
+                            else if(Received_array[3]==1 && flag==0)
+                            {
+                                button.setBackgroundResource(R.drawable.on);
                             }
                         }
-                    } catch (ArrayIndexOutOfBoundsException exception) {
-                    }
-
                 }
 
             });
@@ -577,12 +594,12 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
 
 
     // ----------------------------------------------------------------------------------------------------------------
-    // Request a read of a given BluetoothGattCharacteristic. The Read result is reported asynchronously through the
+    // Request CRC_checkArray read of CRC_checkArray given BluetoothGattCharacteristic. The Read result is reported asynchronously through the
     // BluetoothGattCallback onCharacteristicRead callback method.
     // For information only. This application uses Indication to receive updated characteristic data, not Read
 
     private void readCharacteristic(BluetoothGattCharacteristic characteristic) {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {                      //Check that we have access to a Bluetooth radio
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {                      //Check that we have access to CRC_checkArray Bluetooth radio
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
@@ -590,10 +607,10 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
     }
 
     // ----------------------------------------------------------------------------------------------------------------
-    // Write to a given characteristic. The completion of the write is reported asynchronously through the
+    // Write to CRC_checkArray given characteristic. The completion of the write is reported asynchronously through the
     // BluetoothGattCallback onCharacteristicWrire callback method.
     private void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {                      //Check that we have access to a Bluetooth radio
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {                      //Check that we have access to CRC_checkArray Bluetooth radio
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
@@ -635,7 +652,7 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
 
     @Override
     public void onBackPressed() {
-        if(mBluetoothGatt != null) {                                            //If there is a valid GATT connection
+        if(mBluetoothGatt != null) {                                            //If there is CRC_checkArray valid GATT connection
             mBluetoothGatt.disconnect();                                        // then disconnect
         }
         mBluetoothGatt.close();                                                         //Close the connection
@@ -648,26 +665,27 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
 
 
     @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
+    public void onClick(View view)
+    {
+        switch (view.getId())
+        {
+            case R.id.button1:
+            {
+                 if (Received_array !=null) {
+                    if (Received_array[3] == 0) {
 
-            case R.id.button1: {
-
-                 if (progress != 0 && b==null) {
-                    if (b[3] == 0) {
-                        button.setBackgroundResource(R.drawable.off);
                         rb.setChecked(false);
                     } else {
-                        button.setBackgroundResource(R.drawable.on);
+
                         rb.setChecked(true);
                     }
                     int[] tempwritevalues = new int[7];
                     int tempCRC;
                     byte writeindex = 0;
                     tempwritevalues[writeindex++] = 1;//to write this byte should be 0x01;
-                    tempwritevalues[writeindex++] = b[3];//pump status -> read only
-                    tempwritevalues[writeindex++] = b[4];//pressure -> read only
-                    tempwritevalues[writeindex++] = b[5];//frequency -> read only
+                    tempwritevalues[writeindex++] = Received_array[3];//pump status -> read only
+                    tempwritevalues[writeindex++] = Received_array[4];//pressure -> read only
+                    tempwritevalues[writeindex++] = Received_array[5];//frequency -> read only
                     tempwritevalues[writeindex++] = progress;  //pressure set point
                     tempCRC = (CRC16(tempwritevalues, writeindex)) & 0xFFFF;
                     tempwritevalues[writeindex++] = tempCRC & 0xFF;
@@ -678,36 +696,35 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
                     for (int i = 0; i < writeindex; i++) {
                         array[i + 2] = (byte) (tempwritevalues[i] & 0xFF);
                     }
-                    if(array!=null)
-                    {
                         mDataMDLP.setValue(array);
                         writeCharacteristic(mDataMDLP);
                         Toast.makeText(DeviceControlActivity.this, "UPDATED", Toast.LENGTH_SHORT).show();
-                    }
-                    else
-                        Toast.makeText(DeviceControlActivity.this,"NOT UPDATED",Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
                     rb.setChecked(false);
-                    Toast.makeText(DeviceControlActivity.this, "UPDATE VALUE/ RECEIVE DATA FIRST", Toast.LENGTH_LONG).show();
+                    Toast.makeText(DeviceControlActivity.this, "RECEIVE DATA FIRST", Toast.LENGTH_LONG).show();
                 }
-
-            break;
-        }
-        case R.id.button: {
-            mp.start();
-            if(isPressed) {
-                button.setBackgroundResource(R.drawable.on);
-                b[3]=1;
-            }
-            else {
-                button.setBackgroundResource(R.drawable.off);
-                b[3]=0;
-            }
-            isPressed = !isPressed;
-        }
-            break;
+                    break;
+             }
+            case R.id.button2:
+           {
+                    if(isPressed)
+                    {
+                        button.setBackgroundResource(R.drawable.on);
+                        Received_array[3]=1;
+                        flag=1;
+                    }
+                    else
+                    {
+                        button.setBackgroundResource(R.drawable.off);
+                        Received_array[3]=0;
+                        flag=1;
+                    }
+                   isPressed = !isPressed;
+               break;
+           }
+            default: break;
         }
     }
 
@@ -716,12 +733,14 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
 
 
     int CRC16( int puchMsg[],int usDataLen )
-    {   int CRC;
+    {
+        int CRC;
         int uchCRCHi = 0xFF ; /* high byte of CRC initialized */
         int uchCRCLo = 0xFF ; /* low byte of CRC initialized */
         int uIndex ; /* will index into CRC lookup table */
         int index = 0;
-        while(usDataLen!=0){ /* pass through message buffer */
+        while(usDataLen!=0)
+        { /* pass through message buffer */
             usDataLen--;
             uIndex = uchCRCLo ^ puchMsg[index++] ; /* calculate the CRC */
             uchCRCLo = uchCRCHi ^ auchCRCHi[uIndex] ;
@@ -735,7 +754,7 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
 //********************************************************************
 // PARAMETERS:
 // RX_BUFFER
-// pointer to a string.
+// pointer to CRC_checkArray string.
 //
 // buf_len
 // Length of the given string.
@@ -745,7 +764,7 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
 // CRC of string
 //
 // DESCRIPTION:
-// Calculate the CRC of a string (Last two bytes of string).
+// Calculate the CRC of CRC_checkArray string (Last two bytes of string).
 // NOTE: char type message only.
 //********************************************************************
 
@@ -761,7 +780,7 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
 //********************************************************************
 // PARAMETERS:
 // RX_BUFFER
-// pointer to a string.
+// pointer to CRC_checkArray string.
 //
 // buf_len
 // Length of the given string.
@@ -778,10 +797,12 @@ public class DeviceControlActivity extends FragmentActivity implements ActionBar
      int CRC_check(int  RX_BUFFER[],int buf_len)
     {
         int flag_crc_match;
-        if( get_frame_CRC(RX_BUFFER,buf_len)== CRC16( RX_BUFFER,(buf_len-2) ) ){
+        if( get_frame_CRC(RX_BUFFER,buf_len)== CRC16( RX_BUFFER,(buf_len-2) ) )
+        {
             flag_crc_match = 1;
         }
-        else{
+        else
+        {
             flag_crc_match = 0;
         }
         return flag_crc_match;
